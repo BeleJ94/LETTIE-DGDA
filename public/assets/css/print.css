@@ -1,0 +1,141 @@
+/* Lettie-DGDA — documents A4 (PO fournisseur, bon de livraison). */
+@font-face { font-family: "IBM Plex Sans"; font-weight: 400; src: url("../fonts/IBMPlexSans-Regular.woff2") format("woff2"); }
+@font-face { font-family: "IBM Plex Sans"; font-weight: 600; src: url("../fonts/IBMPlexSans-SemiBold.woff2") format("woff2"); }
+:root { --accent: #1F4E79; --text: #1B2430; --muted: #5B6573; --border: #C4CAD2; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #E9ECF0; font-family: "IBM Plex Sans", system-ui, sans-serif; font-size: 11pt; color: var(--text); }
+.print-toolbar { position: sticky; top: 0; display: flex; gap: 16px; align-items: center; padding: 10px 16px; background: #fff; border-bottom: 1px solid var(--border); font-size: 10pt; color: var(--muted); }
+.print-toolbar button { padding: 8px 16px; border: 0; border-radius: 6px; background: var(--accent); color: #fff; font: inherit; cursor: pointer; }
+.doc { width: 210mm; min-height: 297mm; margin: 16px auto; padding: 16mm 15mm; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.12); }
+.doc__head { display: flex; justify-content: space-between; gap: 24px; border-bottom: 3px solid var(--accent); padding-bottom: 10px; margin-bottom: 16px; }
+.doc__company { display: flex; gap: 12px; align-items: flex-start; }
+.doc__logo { max-height: 22mm; max-width: 45mm; object-fit: contain; }
+.doc__company strong { font-size: 15pt; color: var(--accent); }
+.doc__legal-form { font-size: 9pt; color: var(--muted); }
+.doc__company p, .doc__title p { margin: 2px 0; font-size: 9pt; color: var(--muted); }
+.doc__title { text-align: right; }
+.doc__title h1 { margin: 0; font-size: 18pt; color: var(--accent); letter-spacing: .02em; }
+.doc__title .ref { font-size: 13pt; font-weight: 600; }
+.boxes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+.box { border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; }
+.box h2 { margin: 0 0 4px; font-size: 8.5pt; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.box p { margin: 1px 0; white-space: pre-line; }
+.box--accent { border: 2px solid var(--accent); background: #F3F6FA; }
+.meta { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; font-size: 9.5pt; }
+.meta span { display: block; font-size: 8pt; color: var(--muted); text-transform: uppercase; }
+table { width: 100%; border-collapse: collapse; margin-bottom: 14px; }
+th { background: var(--accent); color: #fff; font-size: 8.5pt; text-transform: uppercase; text-align: left; padding: 6px 8px; }
+td { border-bottom: 1px solid var(--border); padding: 6px 8px; vertical-align: top; }
+.num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.muted { color: var(--muted); font-size: 9pt; }
+tfoot td { font-weight: 600; border-bottom: 0; }
+.notes { font-size: 9.5pt; white-space: pre-line; border-left: 3px solid var(--accent); padding-left: 10px; margin-bottom: 18px; }
+.signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 28px; }
+.signatures div { border-top: 1px solid var(--text); padding-top: 6px; min-height: 70px; font-size: 9pt; }
+.doc__foot { margin-top: 24px; font-size: 8pt; color: var(--muted); text-align: center; }
+@page { size: A4; margin: 0; }
+@media print {
+    body { background: #fff; }
+    .print-toolbar { display: none; }
+    .doc { margin: 0; box-shadow: none; width: auto; min-height: auto; }
+}
+
+/* Affiché dans l'aperçu en modale */
+.is-embedded .print-toolbar { display: none; }
+.is-embedded body { background: #E9ECF0; }
+.is-embedded .doc { margin: 12px auto; }
+
+/* Facture client (format logistique) */
+.doc--invoice { position: relative; overflow: hidden; }
+.doc__stamp { position: absolute; top: 120mm; left: 50%; transform: translateX(-50%) rotate(-24deg); font-size: 42pt; font-weight: 600;
+    letter-spacing: .08em; text-transform: uppercase; color: rgba(31, 78, 121, .10); border: 6px solid rgba(31, 78, 121, .10);
+    padding: 4mm 10mm; border-radius: 8px; pointer-events: none; white-space: nowrap; }
+.doc--cancelled .doc__stamp { color: rgba(176, 32, 32, .14); border-color: rgba(176, 32, 32, .14); }
+.doc--paid .doc__stamp { color: rgba(30, 120, 60, .14); border-color: rgba(30, 120, 60, .14); }
+.meta--refs { grid-template-columns: repeat(6, 1fr); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; }
+.transport { margin-bottom: 14px; }
+.transport h2, .words h2 { margin: 0 0 4px; font-size: 8.5pt; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.transport dl { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px 12px; margin: 0; font-size: 9.5pt; }
+.transport dt { font-size: 8pt; color: var(--muted); }
+.transport dd { margin: 0; }
+.lines-table tbody tr:nth-child(even) td { background: #F7F9FB; }
+.totals-row { display: grid; grid-template-columns: 1fr 75mm; gap: 16px; align-items: start; margin-bottom: 14px; }
+.words p { margin: 0; font-style: italic; font-size: 10pt; }
+.words .vat-note { margin-top: 6px; font-style: normal; font-size: 8.5pt; }
+table.totals { margin: 0; }
+.totals th { background: none; color: var(--text); text-transform: none; font-size: 10pt; font-weight: 400; border-bottom: 1px solid var(--border); }
+.totals td { font-weight: 600; }
+.totals__due th, .totals__due td { background: var(--accent); color: #fff; font-weight: 600; font-size: 11pt; }
+.boxes--pay .bank { margin-top: 4px; font-family: ui-monospace, Consolas, monospace; font-size: 9.5pt; }
+.doc--message h1 { color: var(--accent); }
+@media print { .lines-table tbody tr:nth-child(even) td { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    th, .totals__due th, .totals__due td, .box--accent { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+
+/* Relevés de tiers et balance âgée */
+.statement-filters { margin: -8px 0 12px; font-size: 9pt; color: var(--muted); }
+.statement-cur { margin: 16px 0 8px; font-size: 11pt; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+.statement-sub { margin: 14px 0 6px; font-size: 9pt; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.kpi-strip { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 8px; margin-bottom: 10px; }
+.kpi-strip > div { border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; }
+.kpi-strip span { display: block; font-size: 7.5pt; text-transform: uppercase; color: var(--muted); }
+.kpi-strip strong { font-size: 11pt; font-variant-numeric: tabular-nums; }
+.kpi-strip__main { background: var(--accent); border-color: var(--accent) !important; color: #fff; }
+.kpi-strip__main span { color: rgba(255,255,255,.8); }
+.kpi-strip__bad strong { color: #B02020; }
+.aging { margin-bottom: 12px; }
+.aging__bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: #EEF1F4; }
+.aging__seg { display: block; height: 100%; }
+.aging__legend { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 5px; font-size: 8pt; color: var(--muted); }
+.aging__legend strong { display: block; color: var(--text); font-size: 9pt; font-variant-numeric: tabular-nums; }
+.aging__dot { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 4px; vertical-align: 0; }
+.aging__seg--current { background: #2E7D4F; }
+.aging__seg--d30 { background: #E0A100; }
+.aging__seg--d60 { background: #E06A00; }
+.aging__seg--d90 { background: #C53D2B; }
+.aging__seg--over90 { background: #7E1A12; }
+.statement-table { font-size: 9pt; }
+.statement-table th, .statement-table td { padding: 4px 6px; }
+.statement-table tbody tr:nth-child(even) td { background: #F7F9FB; }
+.statement-table .late { color: #B02020; font-weight: 600; }
+.statement-table tfoot td { border-top: 2px solid var(--accent); }
+/* Ligne de clôture / total : une seule fois, en fin de tableau (pas répétée en bas de chaque page) */
+.statement-table tfoot { display: table-row-group; }
+.statement-row--opening td { font-style: italic; background: #EEF3F8 !important; }
+@media print {
+    .aging__seg, .aging__dot, .kpi-strip__main, .statement-table tbody tr td { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .statement-table thead { display: table-header-group; }
+    .statement-table tr { break-inside: avoid; }
+}
+
+/* Relevés : cadre de page (en-tête / pied répétés à chaque page), orientation, n° de page dans la marge */
+.page-frame { width: 100%; border-collapse: collapse; margin: 0; }
+.page-frame > thead > tr > td, .page-frame > tfoot > tr > td, .page-frame > tbody > tr > td { padding: 0; border: 0; background: none !important; vertical-align: top; }
+.page-frame > thead > tr > td > .doc__head { margin-bottom: 12px; }
+.page-foot { display: flex; justify-content: space-between; gap: 12px; margin-top: 14px; padding-top: 6px; border-top: 1px solid var(--border); font-size: 7.5pt; color: var(--muted); }
+.page-foot span:nth-child(2) { text-align: center; }
+.page-foot span:last-child { text-align: right; }
+.doc--statement.doc--landscape { width: 297mm; min-height: 210mm; }
+.doc--statement .boxes, .doc--statement .kpi-strip, .doc--statement .aging, .doc--statement .signatures { break-inside: avoid; }
+.doc--statement .statement-cur, .doc--statement .statement-sub { break-after: avoid; }
+@page statement-portrait {
+    size: A4 portrait; margin: 10mm 12mm 12mm;
+    @bottom-right { content: counter(page) " / " counter(pages); font: 8pt "IBM Plex Sans", sans-serif; color: #5B6573; }
+}
+@page statement-landscape {
+    size: A4 landscape; margin: 10mm 12mm 12mm;
+    @bottom-right { content: counter(page) " / " counter(pages); font: 8pt "IBM Plex Sans", sans-serif; color: #5B6573; }
+}
+@media print {
+    .doc--statement { padding: 0; width: auto !important; min-height: 0 !important; }
+    .doc--statement.doc--portrait { page: statement-portrait; }
+    .doc--statement.doc--landscape { page: statement-landscape; }
+    .page-frame > thead { display: table-header-group; }
+    .page-frame > tfoot { display: table-footer-group; }
+}
+/* Factures non soldées : nouvelle page après le relevé de compte (aperçu : séparateur de page visible) */
+.statement-section--new-page { margin-top: 18px; padding-top: 14px; border-top: 2px dashed var(--border); }
+@media print {
+    .statement-section--new-page { break-before: page; margin-top: 0; padding-top: 0; border-top: 0; }
+}
+
+.doc__logo { display: block; width: 62mm; height: auto; margin-bottom: 4px; }
